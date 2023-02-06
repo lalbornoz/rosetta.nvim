@@ -51,6 +51,12 @@ function M.set_keyboard(lang, silent)
       vim.bo.keymap = lang_conf.keymap
       vim.o.revins = lang_conf.rtl
 
+      if lang_conf.options ~= nil then
+         for option, setting in pairs(lang_conf.options) do
+            vim.o[option] = setting
+         end
+      end
+
       -- Swap <Del> and <BS> for more intuitive deleting.
       if lang_conf.rtl and M.config.keyboard.intuitive_delete then
          vim.keymap.set("i", "<BS>", "<Del>", { buffer = true })
