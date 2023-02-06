@@ -6,23 +6,27 @@ local msg = require("rosetta.message")
 
 M.config = {
    options = {
-      rtl = false, -- Default text direction is LTR
+      default = "english", -- Default language
    },
-   module = {
-      bidi = {
-         enabled = true,
-         user_commands = true, -- Generate usercommands for bidi functions
-         revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
-         auto_switch_keyboard = true, -- Automatically switch to the correct RTL language.
-      },
-      keyboard = {
-         enabled = true,
-         user_commands = true, -- Generate usercommands for keyboard functions
-         intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
-         silent = false, -- Notify the user when keyboard is switched.
-      },
+   bidi = {
+      enabled = true,
+      user_commands = true, -- Generate usercommands for bidi functions
+      revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
    },
-   lang = {}, -- Place language instances here.
+   keyboard = {
+      enabled = true,
+      user_commands = true, -- Generate usercommands for keyboard functions
+      auto_switch_keyboard = true, -- Automatically switch to the language under the cursor.
+      intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
+      silent = false, -- Notify the user when keyboard is switched.
+   },
+   lang = {  -- Place language instances here.
+      english = {
+         keymap = "",
+         rtl = false,
+         unicode_range = { "0020-007F" },
+      },
+   }
 }
 
 function M.setup(opts)
