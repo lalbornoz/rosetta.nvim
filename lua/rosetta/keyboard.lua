@@ -3,36 +3,32 @@ local M = {}
 local name = "Keyboard"
 local msg = require("rosetta.message")
 
-M.current_keyboard = nil -- Default
-
 -- Reset to original settings
 local function reset()
-   vim.bo.keymap = nil
-   vim.o.revins = M.config.options.rtl
+   vim.bo.keymap = M.config.lang[M.config.options.default].keymap
+   vim.o.revins = M.config.lang[M.config.options.default].rtl
 end
 
 --- View keys for current mapping
 function M.view_keymap()
-   local lang = M.current_keyboard
-
-   if lang ~= nil then
+   if vim.bo.keymap ~= "" then
       vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", M.config.lang[lang].keymap))
-
-      -- Make it legible
-      vim.o.rightleft = M.config.options.rtl
    else
-      msg.info(name, "You can only look up mappings on non-default keymaps.")
+      msg.info(name, string.format("The current language does not have a keymap.", vim.bo.keymap))
    end
+
+   -- Make it legible
+   vim.o.rightleft = M.config.lang[M.config.options.default].rtl
 end
 
 --- Reset keyboard
 -- @param silent boolean true: no output message
 function M.reset_keyboard(silent)
-   reset()
-   if M.config.module.keyboard.intuitive_delete then
+   if vim.wo.rightleft and M.config.keyboard.intuitive_delete then
       vim.keymap.del("i", "<BS>", { buffer = true })
       vim.keymap.del("i", "<Del>", { buffer = true })
    end
+   reset()
    if not silent then msg.info(name, "Reset keyboard") end
 end
 
@@ -46,8 +42,6 @@ function M.set_keyboard(lang, silent)
          string.format("Could not find '%s' in configured languages.", lang)
       )
    else
-      M.current_keyboard = lang
-
       reset()
 
       -- Get language settings
@@ -58,7 +52,7 @@ function M.set_keyboard(lang, silent)
       vim.o.revins = lang_conf.rtl
 
       -- Swap <Del> and <BS> for more intuitive deleting.
-      if M.config.module.keyboard.intuitive_delete then
+      if lang_conf.rtl and M.config.keyboard.intuitive_delete then
          vim.keymap.set("i", "<BS>", "<Del>", { buffer = true })
          vim.keymap.set("i", "<Del>", "<BS>", { buffer = true })
       end
@@ -73,23 +67,59 @@ end
 function M.init()
    M.config = require("rosetta").config
 
+   -- Autocommands for insert mode.
+   if M.config.keyboard.auto_switch_keyboard then
+      vim.api.nvim_create_autocmd("InsertEnter", {
+         callback = function(args)
+            -- Get current word under cursor
+            local sample = vim.fn.expand("<cword>")
+
+            -- Find which language it is via unicode
+            for lang, _ in pairs(M.config.lang) do
+               local uni = M.config.lang[lang].unicode_range
+               local unicode_regex = ""
+               for _, range in ipairs(uni) do
+                  unicode_regex = unicode_regex
+                     .. string.format(
+                        "[\\u%s-\\u%s]",
+                        range:sub(1, 4),
+                        range:sub(6, -1)
+                     )
+                     .. "\\|"
+               end
+               unicode_regex = vim.regex(unicode_regex:sub(1, -3))
+               if
+                  unicode_regex:match_str(sample) ~= nil
+               then
+                  M.set_keyboard(lang, true)
+                  break
+               end
+            end
+         end,
+         group = M.augroup,
+      })
+
+      vim.api.nvim_create_autocmd("InsertLeave", {
+         callback = function(args)
+            if vim.bo.keymap ~= nil then
+               M.reset_keyboard(true)
+            end
+         end,
+         group = M.augroup,
+      })
+   end
+
    -- Create user commands
-   if M.config.module.keyboard.user_commands then
+   if M.config.keyboard.user_commands then
       for lang, _ in pairs(M.config.lang) do
          local cmd_name =
             string.format("Keyboard%s%s", lang:sub(1, 1):upper(), lang:sub(2))
          vim.api.nvim_create_user_command(
             cmd_name,
-            function() M.set_keyboard(lang, M.config.module.keyboard.silent) end,
+            function() M.set_keyboard(lang, M.config.keyboard.silent) end,
             {}
          )
       end
-
-      vim.api.nvim_create_user_command(
-         "KeyboardReset",
-         function() M.reset_keyboard(M.config.module.keyboard.silent) end,
-         {}
-      )
 
       vim.api.nvim_create_user_command(
          "KeyboardMappings",
