@@ -18,6 +18,7 @@ M.config = {
       keyboard = {
          enabled = true,
          user_commands = true, -- Generate usercommands for keyboard functions
+         intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
          silent = false, -- Notify the user when keyboard is switched.
       },
    },

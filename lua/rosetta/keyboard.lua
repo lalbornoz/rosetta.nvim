@@ -30,6 +30,10 @@ end
 -- @param silent boolean true: no output message
 function M.reset_keyboard(silent)
    reset()
+   if M.config.module.keyboard.intuitive_delete then
+      vim.keymap.del("i", "<BS>", { buffer = true })
+      vim.keymap.del("i", "<Del>", { buffer = true })
+   end
    if not silent then msg.info(name, "Reset keyboard") end
 end
 
@@ -53,6 +57,12 @@ function M.set_keyboard(lang, silent)
       -- Adjust settings
       vim.bo.keymap = lang_conf.keymap
       vim.o.revins = lang_conf.rtl
+
+      -- Swap <Del> and <BS> for more intuitive deleting.
+      if M.config.module.keyboard.intuitive_delete then
+         vim.keymap.set("i", "<BS>", "<Del>", { buffer = true })
+         vim.keymap.set("i", "<Del>", "<BS>", { buffer = true })
+      end
 
       if not silent then
          msg.info(name, string.format("Switched to '%s'", lang))
