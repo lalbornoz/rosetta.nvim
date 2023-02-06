@@ -59,7 +59,7 @@ function M.init()
    M.augroup = vim.api.nvim_create_augroup("BidiGrp", { clear = true })
 
    -- Autocommand for saving
-   if M.config.module.bidi.revert_before_saving then
+   if M.config.bidi.revert_before_saving then
       vim.api.nvim_create_autocmd({ "BufWritePre", "BufWritePost" }, {
          callback = function(args)
             if M.active_bufs[tostring(args.buf)] ~= nil then
@@ -70,54 +70,8 @@ function M.init()
       })
    end
 
-   -- Autocommands for insert mode.
-   if M.config.module.bidi.auto_switch_keyboard then
-      vim.api.nvim_create_autocmd("InsertEnter", {
-         callback = function(args)
-            if M.active_bufs[tostring(args.buf)] ~= nil then
-               -- Get current word under cursor
-               local sample = vim.fn.expand("<cword>")
-
-               -- Find which language it is via unicode
-               for lang, _ in pairs(M.config.lang) do
-                  local uni = M.config.lang[lang].unicode_range
-                  local unicode_regex = ""
-                  for _, range in ipairs(uni) do
-                     unicode_regex = unicode_regex
-                        .. string.format(
-                           "[\\u%s-\\u%s]",
-                           range:sub(1, 4),
-                           range:sub(6, -1)
-                        )
-                        .. "\\|"
-                  end
-                  unicode_regex = vim.regex(unicode_regex:sub(1, -3))
-                  if
-                     unicode_regex:match_str(sample) ~= nil
-                     and M.config.lang[lang].rtl
-                  then
-                     -- Enable that language if it is RTL
-                     kbd.set_keyboard(lang, true)
-                     break
-                  end
-               end
-            end
-         end,
-         group = M.augroup,
-      })
-
-      vim.api.nvim_create_autocmd("InsertLeave", {
-         callback = function(args)
-            if M.active_bufs[tostring(args.buf)] ~= nil then
-               kbd.reset_keyboard(true)
-            end
-         end,
-         group = M.augroup,
-      })
-   end
-
    -- Create user commands
-   if M.config.module.bidi.enabled then
+   if M.config.bidi.enabled then
       vim.api.nvim_create_user_command(
          "BidiConvert",
          function() M.buf_run_fribidi(false) end,
