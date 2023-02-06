@@ -12,6 +12,14 @@ M.active_bufs = {}
 -- @param args string
 function M.fribidi(stdin, args)
    local args = args or ""
+
+   -- Force base direction
+   if M.config.lang[M.config.options.default].rtl then
+      args = "--rtl " .. args
+   else
+      args = "--ltr" .. args
+   end
+
    return vim.fn.systemlist(
       [[echo "]] .. stdin .. [[" | fribidi --nobreak --nopad ]] .. args
    )
