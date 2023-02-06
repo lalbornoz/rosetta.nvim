@@ -10,6 +10,7 @@ local function reset()
 end
 
 --- View keys for current mapping
+-- This creates a vsplit with vim's keymap for the current language displayed.
 function M.view_keymap()
    if vim.bo.keymap ~= "" then
       vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", M.config.lang[lang].keymap))
@@ -21,8 +22,8 @@ function M.view_keymap()
    vim.o.rightleft = M.config.lang[M.config.options.default].rtl
 end
 
---- Reset keyboard
--- @param silent boolean true: no output message
+--- Reset keyboard to default language
+-- @bool silent When true, Rosetta does not inform the user of the switch.
 function M.reset_keyboard(silent)
    if vim.wo.rightleft and M.config.keyboard.intuitive_delete then
       vim.keymap.del("i", "<BS>", { buffer = true })
@@ -33,12 +34,13 @@ function M.reset_keyboard(silent)
 end
 
 --- Set keyboard to desired language
--- @param lang the name of the language
--- @param silent boolean true: no output message
+-- @string lang The name of the language.
+-- @bool silent When true, Rosetta does not inform the user of the switch.
 function M.set_keyboard(lang, silent)
    -- See if language is configured
    if vim.tbl_get(M.config.lang, lang) == nil then
       msg.error(
+         name,
          string.format("Could not find '%s' in configured languages.", lang)
       )
    else
