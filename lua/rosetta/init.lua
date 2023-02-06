@@ -32,9 +32,6 @@ M.config = {
 function M.setup(opts)
    M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
-   -- Set options
-   vim.o.allowrevins = true
-
    if M.config.bidi.enabled then bidi.init() end
    if M.config.keyboard.enabled then kbd.init() end
 end

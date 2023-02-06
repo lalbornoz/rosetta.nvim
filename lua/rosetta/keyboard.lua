@@ -73,6 +73,10 @@ end
 function M.init()
    M.config = require("rosetta").config
 
+   -- Set options and default keyboard
+   vim.o.allowrevins = true
+   M.set_keyboard(M.config.options.default, true)
+
    -- Autocommands for insert mode.
    if M.config.keyboard.auto_switch_keyboard then
       vim.api.nvim_create_autocmd("InsertEnter", {
