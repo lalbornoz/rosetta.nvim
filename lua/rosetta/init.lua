@@ -1,9 +1,14 @@
+----------
+-- Initialization and configuration of Rosetta.
+-- @module rosetta
+
 local M = {}
 
 local bidi = require("rosetta.bidi")
 local kbd = require("rosetta.keyboard")
 local msg = require("rosetta.message")
 
+--- The default configuration
 M.config = {
    options = {
       default = "english", -- Default language
@@ -29,6 +34,10 @@ M.config = {
    },
 }
 
+--- Initialize and configure Rosetta
+-- @tparam ?table opts Options which the user can configure.
+-- @usage require("rosetta").setup({opts})
+-- @see rosetta.config
 function M.setup(opts)
    M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 

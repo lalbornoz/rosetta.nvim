@@ -1,3 +1,7 @@
+----------
+-- Keyboard handling in Rosetta.
+-- @module keyboard
+
 local M = {}
 
 local name = "Keyboard"

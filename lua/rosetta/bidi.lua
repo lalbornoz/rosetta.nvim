@@ -1,3 +1,7 @@
+----------
+-- Bidirectional (bidi) handling in Rosetta.
+-- @module bidi
+
 local M = {}
 
 local name = "Bidi"
@@ -51,7 +55,7 @@ end
 
 --- Convert current buffer contents to bidi
 -- This will toggle the text between bidi and udi as a static file.
--- @bool rtl When true, the base direction is RTL.
+-- @bool dir When true, the base direction is RTL.
 -- @bool silent boolean When true, Rosetta does not output a message.
 function M.buf_run_fribidi(dir, silent)
    local buf_handle = vim.api.nvim_win_get_buf(0)
