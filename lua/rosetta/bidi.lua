@@ -22,7 +22,10 @@ end
 -- @treturn table Bidi'd lines from the buffer
 local function bidi_buf(bufnr, dir)
    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-   lines = vim.tbl_map(function(line) return line:gsub([[']], [['\'']]) end, lines)
+   lines = vim.tbl_map(
+      function(line) return line:gsub([[']], [['\'']]) end,
+      lines
+   )
    return M.fribidi(table.concat(lines, "\n"), "--" .. dir)
 end
 
@@ -77,26 +80,28 @@ function M.init()
    -- Create user commands
 
    if M.config.bidi.enabled then
-
       -- Find default bidi direction
-      local default_dir = M.config.lang[M.config.options.default].rtl and "rtl" or "ltr"
+      local default_dir = M.config.lang[M.config.options.default].rtl and "rtl"
+         or "ltr"
 
       -- Default
       vim.api.nvim_create_user_command(
          "BidiConvert",
-         function()
-            M.buf_run_fribidi(default_dir, true)
-         end,
+         function() M.buf_run_fribidi(default_dir, true) end,
          {}
       )
 
-      vim.api.nvim_create_user_command("BidiEnable", function()
-         M.buf_enable_bidi(default_dir)
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiEnable",
+         function() M.buf_enable_bidi(default_dir) end,
+         {}
+      )
 
-      vim.api.nvim_create_user_command("BidiDisable", function()
-         M.buf_disable_bidi(default_dir)
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiDisable",
+         function() M.buf_disable_bidi(default_dir) end,
+         {}
+      )
 
       -- Manual (LTR)
       vim.api.nvim_create_user_command(
@@ -105,13 +110,17 @@ function M.init()
          {}
       )
 
-      vim.api.nvim_create_user_command("BidiEnableLTR", function()
-         M.buf_enable_bidi("ltr")
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiEnableLTR",
+         function() M.buf_enable_bidi("ltr") end,
+         {}
+      )
 
-      vim.api.nvim_create_user_command("BidiDisableLTR", function()
-         M.buf_disable_bidi("ltr")
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiDisableLTR",
+         function() M.buf_disable_bidi("ltr") end,
+         {}
+      )
 
       -- Manual (RTL)
       vim.api.nvim_create_user_command(
@@ -120,13 +129,17 @@ function M.init()
          {}
       )
 
-      vim.api.nvim_create_user_command("BidiEnablRTL", function()
-         M.buf_enable_bidi("rtl")
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiEnablRTL",
+         function() M.buf_enable_bidi("rtl") end,
+         {}
+      )
 
-      vim.api.nvim_create_user_command("BidiDisablRTL", function()
-         M.buf_disable_bidi("rtl")
-      end, {})
+      vim.api.nvim_create_user_command(
+         "BidiDisablRTL",
+         function() M.buf_disable_bidi("rtl") end,
+         {}
+      )
    end
 end
 

@@ -13,9 +13,20 @@ end
 -- This creates a vsplit with vim's keymap for the current language displayed.
 function M.view_keymap()
    if vim.bo.keymap ~= "" then
-      vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", M.config.lang[lang].keymap))
+      vim.cmd(
+         string.format(
+            "vsplit $VIMRUNTIME/keymap/%s.vim",
+            M.config.lang[lang].keymap
+         )
+      )
    else
-      msg.info(name, string.format("The current language does not have a keymap.", vim.bo.keymap))
+      msg.info(
+         name,
+         string.format(
+            "The current language does not have a keymap.",
+            vim.bo.keymap
+         )
+      )
    end
 
    -- Make it legible
@@ -100,9 +111,7 @@ function M.init()
                      .. "\\|"
                end
                unicode_regex = vim.regex(unicode_regex:sub(1, -3))
-               if
-                  unicode_regex:match_str(sample) ~= nil
-               then
+               if unicode_regex:match_str(sample) ~= nil then
                   M.set_keyboard(lang, true)
                   break
                end
@@ -113,9 +122,7 @@ function M.init()
 
       vim.api.nvim_create_autocmd("InsertLeave", {
          callback = function(args)
-            if vim.bo.keymap ~= nil then
-               M.reset_keyboard(true)
-            end
+            if vim.bo.keymap ~= nil then M.reset_keyboard(true) end
          end,
          group = M.augroup,
       })

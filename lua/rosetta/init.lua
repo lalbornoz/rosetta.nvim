@@ -20,13 +20,13 @@ M.config = {
       intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
       silent = false, -- Notify the user when keyboard is switched.
    },
-   lang = {  -- Place language instances here.
+   lang = { -- Place language instances here.
       english = {
          keymap = "",
          rtl = false,
          unicode_range = { "0020-007F" },
       },
-   }
+   },
 }
 
 function M.setup(opts)
