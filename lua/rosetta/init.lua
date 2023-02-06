@@ -35,8 +35,8 @@ function M.setup(opts)
    -- Set options
    vim.o.allowrevins = true
 
-   if M.config.module.bidi.enabled then bidi.init() end
-   if M.config.module.keyboard.enabled then kbd.init() end
+   if M.config.bidi.enabled then bidi.init() end
+   if M.config.keyboard.enabled then kbd.init() end
 end
 
 return M
