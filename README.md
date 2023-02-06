@@ -1,6 +1,6 @@
 # rosetta.nvim
 
-**rosetta.nvim** is a tool for polyglots.
+**rosetta.nvim** is a tool for polyglots and bidirectional writers.
 
 ## Features
 
@@ -29,24 +29,28 @@ Here the defaults.
 ```lua
 require("rosetta").setup({
    options = {
-      rtl = false, -- Default text direction is LTR
+      default = "english", -- Default language
    },
-   module = {
-      bidi = {
-         enabled = true,
-         user_commands = true, -- Generate usercommands for bidi functions
-         revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
-         auto_switch_keyboard = true, -- Automatically switch to the correct RTL language.
-      },
-      keyboard = {
-         enabled = true,
-         user_commands = true, -- Generate usercommands for keyboard functions.
-         intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
-         silent = false, -- Notify the user when keyboard is switched.
-      },
+   bidi = {
+      enabled = true,
+      user_commands = true, -- Generate usercommands for bidi functions
+      revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
    },
-   lang = {}, -- Place language instances here. (See 'Usage' for an example.)
-})
+   keyboard = {
+      enabled = true,
+      user_commands = true, -- Generate usercommands for keyboard functions
+      auto_switch_keyboard = true, -- Automatically switch to the language under the cursor.
+      intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
+      silent = false, -- Notify the user when keyboard is switched.
+   },
+   lang = {  -- Place language instances here.
+      english = {
+         keymap = "",
+         rtl = false,
+         unicode_range = { "0020-007F" },
+      },
+   }
+}
 ```
 
 Languages can be configured like so:
@@ -62,6 +66,9 @@ lang = {
       keymap = "hebrew_utf-8",
       rtl = true,
       unicode_range = { "0590-05FF" },
+      options = { -- `vim.o` options can be passed through here.
+         delcombine = true,
+      }
    },
 }
 ```
@@ -74,26 +81,27 @@ By default, Rosetta creates usercommands for easy switching.
 
 | Command        | Action                                                                            |
 |----------------|-----------------------------------------------------------------------------------|
-| `:BidiDisable` | Disable Bidi mode for current buffer.                                             |
-| `:BidiEnable`  | Enable Bidi mode for current buffer.                                              |
-| `:BidiConvert` | Run buffer contents through `fribidi`. This will toggle bidi mode back and forth. |
+| `:BidiDisable` | Display bidi text in current buffer.                                              |
+| `:BidiEnable`  | Do not display bidi text in current buffer.                                       |
+| `:BidiConvert` | Convert buffer contents to/from bidi.                                             |
 
-**NOTE: When bidi mode is enabled, the buffer will still save in non-bidi mode.**
-Use `:BidiConvert` before saving to write buffer contents.
+Use `:BidiConvert` before saving to write buffer contents as bidi text.
+
+If you load a bidi buffer and run `:BidiEnable`, the display will be incorrect unfortunately.
+Just run `:BidiConvert` again to solve this issue.
 
 ## Keyboard
 
 | Command             | Action                                                                      |
 |---------------------|-----------------------------------------------------------------------------|
 | `:Keyboard<lang>`   | Activate keyboard for the indicated language.                               |
-| `:KeyboardMappings` | View mappings for current keyboard. (Nothing happens for default keyboard.) |
-| `:KeyboardReset`    | Reset to default keyboard. (Equivalent to `set keymap=`.)                   |
+| `:KeyboardMappings` | View mappings for current keyboard (if they exist).                         |
 
-## See an problem?
+## See a problem?
 
 Feel free to open an issue!
 
 ## Have a suggestion?
 
-Feel free to open a discussion.
+Feel free to open a discussion!
 Once a matter is settled, PRs are always welcome.
