@@ -21,16 +21,16 @@ function M.fribidi(stdin, args)
    end
 
    return vim.fn.systemlist(
-      [[echo "]] .. stdin .. [[" | fribidi --nobreak --nopad ]] .. args
+      [[echo ']] .. stdin .. [[' | fribidi --nobreak --nopad ]] .. args
    )
 end
 
 -- Run buffer through fribidi
 -- Returns bidi contents
 local function bidi_buf(bufnr)
-   return M.fribidi(
-      table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), "\n")
-   )
+   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+   lines = vim.tbl_map(function(line) return line:gsub([[']], [['\'']]) end, lines)
+   return M.fribidi(table.concat(lines, "\n"))
 end
 
 --- Enable bidi text in current buffer.
