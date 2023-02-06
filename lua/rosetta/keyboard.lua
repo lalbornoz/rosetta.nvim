@@ -16,11 +16,10 @@ function M.view_keymap()
    local lang = M.current_keyboard
 
    if lang ~= nil then
-      vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", lang))
+      vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", M.config.lang[lang].keymap))
 
       -- Make it legible
       vim.o.rightleft = M.config.options.rtl
-      vim.bo.filetype = "txt"
    else
       msg.info(name, "You can only look up mappings on non-default keymaps.")
    end
