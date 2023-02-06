@@ -4,12 +4,13 @@ local name = "Bidi"
 local kbd = require("rosetta.keyboard")
 local msg = require("rosetta.message")
 
--- A list of the IDs of buffers with bidi enabled.
+--- A list of the IDs of buffers with bidi enabled.
 M.active_bufs = {}
 
---- Send string to fribidi
--- @param stdin string
--- @param args string
+--- Send string to fribidi CLI
+-- @string stdin Content to bidi-tize
+-- @tparam ?string args Arguments passed to fribidi
+-- @treturn table Bidi'd lines from the buffer
 function M.fribidi(stdin, args)
    local args = args or ""
    return vim.fn.systemlist(
@@ -17,15 +18,16 @@ function M.fribidi(stdin, args)
    )
 end
 
--- Run buffer through fribidi
--- Returns bidi contents
+--- Run buffer contents through fribidi
+-- @treturn table Bidi'd lines from the buffer
 local function bidi_buf(bufnr, dir)
    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
    lines = vim.tbl_map(function(line) return line:gsub([[']], [['\'']]) end, lines)
    return M.fribidi(table.concat(lines, "\n"), "--" .. dir)
 end
 
---- Enable bidi text in current buffer.
+--- Display bidi text in current buffer
+-- @string dir The base direction to bidi the buffer
 function M.buf_enable_bidi(dir)
    local buf_handle = vim.api.nvim_win_get_buf(0)
    if M.active_bufs[tostring(buf_handle)] == nil then
@@ -34,7 +36,8 @@ function M.buf_enable_bidi(dir)
    end
 end
 
---- Disable bidi text in current buffer.
+--- Stop displaying bidi text in current buffer
+-- @string dir The base direction to bidi the buffer
 function M.buf_disable_bidi(dir)
    local buf_handle = vim.api.nvim_win_get_buf(0)
    if M.active_bufs[tostring(buf_handle)] ~= nil then
@@ -43,8 +46,10 @@ function M.buf_disable_bidi(dir)
    end
 end
 
---- Run buffer through fribidi
--- This will toggle the text between bidi and no bidi as a static file.
+--- Convert current buffer contents to bidi
+-- This will toggle the text between bidi and udi as a static file.
+-- @bool rtl When true, the base direction is RTL.
+-- @bool silent boolean When true, Rosetta does not output a message.
 function M.buf_run_fribidi(dir, silent)
    local buf_handle = vim.api.nvim_win_get_buf(0)
    vim.api.nvim_buf_set_lines(0, 0, -1, false, bidi_buf(buf_handle, dir))
@@ -70,7 +75,9 @@ function M.init()
    end
 
    -- Create user commands
+
    if M.config.bidi.enabled then
+
       -- Find default bidi direction
       local default_dir = M.config.lang[M.config.options.default].rtl and "rtl" or "ltr"
 
