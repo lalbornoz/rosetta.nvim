@@ -62,7 +62,7 @@ function M.init()
    if M.config.module.bidi.revert_before_saving then
       vim.api.nvim_create_autocmd({ "BufWritePre", "BufWritePost" }, {
          callback = function(args)
-            if M.active_bufs[tostring(buf_handle)] ~= nil then
+            if M.active_bufs[tostring(args.buf)] ~= nil then
                M.buf_run_fribidi(true)
             end
          end,
@@ -74,7 +74,7 @@ function M.init()
    if M.config.module.bidi.auto_switch_keyboard then
       vim.api.nvim_create_autocmd("InsertEnter", {
          callback = function(args)
-            if M.active_bufs[tostring(buf_handle)] ~= nil then
+            if M.active_bufs[tostring(args.buf)] ~= nil then
                -- Get current word under cursor
                local sample = vim.fn.expand("<cword>")
 
@@ -108,7 +108,7 @@ function M.init()
 
       vim.api.nvim_create_autocmd("InsertLeave", {
          callback = function(args)
-            if M.active_bufs[tostring(buf_handle)] ~= nil then
+            if M.active_bufs[tostring(args.buf)] ~= nil then
                kbd.reset_keyboard(true)
             end
          end,
