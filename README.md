@@ -1,6 +1,25 @@
 # rosetta.nvim
 
-**rosetta.nvim** is a tool for polyglots and bidirectional writers.
+A tool for polyglots and bidirectional writers.
+
+## Introduction
+
+Rosetta is a tool born like most things—from two parents.
+You can meet them if
+you'd like.
+Ah, here they come.
+This is
+**the-common-usage-of-greek-and-hebrew-in-biblical-studies**,
+and this is
+**the-increasing-rage-over-the-fact-that-emacs-has-bidi-support-and-neovim-does-not**.
+You can really see Rosetta in both of them!
+
+* * *
+
+That pretty much sums it up. I love neovim and use it daily in my research and writing,
+but the lack of good language management, especially bidirectional text, made it difficult to get stuff done.
+So I did what most (neo)vimmers do.
+Instead of looking for a different tool, I made a plugin.
 
 ## Features
 
@@ -21,6 +40,14 @@ Download and install with your favorite package manager.
 -- e.g., Packer
 use({ "mcookly/rosetta.nvim" })
 ```
+
+Then call
+
+```lua
+require("rosetta").setup()
+```
+
+somewhere in your `init` file.
 
 ## Configuration
 
@@ -79,27 +106,31 @@ By default, Rosetta creates usercommands for easy switching.
 
 ## Bidi
 
-| Command        | Action                                                                            |
-|----------------|-----------------------------------------------------------------------------------|
-| `:BidiDisable` | Display bidi text in current buffer.                                              |
-| `:BidiEnable`  | Do not display bidi text in current buffer.                                       |
-| `:BidiConvert` | Convert buffer contents to/from bidi.                                             |
+| Command             | Action                                                                            |
+|---------------------|-----------------------------------------------------------------------------------|
+| `:BidiDisable`      | Do not display bidi text in current buffer using default base direction.          |
+| `:BidiEnable`       | Display bidi text in current buffer using default base direction.                 |
+| `:BidiConvert`      | Convert buffer contents to/from bidi using default base direction.                |
+| `:BidiDisable<DIR>` | Do not display bidi text in current buffer using `<DIR>` base direction.            | 
+| `:BidiEnable<DIR>`  | Display bidi text in current buffer using `<DIR>` base direction.                   |  
+| `:BidiConvert<DIR>` | Convert buffer contents to/from bidi using `<DIR>` base direction.                  |
 
 Use `:BidiConvert` before saving to write buffer contents as bidi text.
 
-If you load a bidi buffer and run `:BidiEnable`, the display will be incorrect unfortunately.
+If you load an already bidi'd buffer and run `:BidiEnable`, the display will be incorrect unfortunately.
 Just run `:BidiConvert` again to solve this issue.
 
 ## Keyboard
 
 | Command             | Action                                                                      |
 |---------------------|-----------------------------------------------------------------------------|
-| `:Keyboard<lang>`   | Activate keyboard for the indicated language.                               |
+| `:Keyboard<LANG>`   | Activate keyboard for the indicated language.                               |
 | `:KeyboardMappings` | View mappings for current keyboard (if they exist).                         |
 
 ## See a problem?
 
 Feel free to open an issue!
+Once a matter is settled, PRs are always welcome.
 
 ## Have a suggestion?
 
