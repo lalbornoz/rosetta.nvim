@@ -49,6 +49,8 @@ function M.buf_enable_bidi(rtl)
       lines = M.fribidi(lines, rtl)
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       M.active_bufs[tostring(bufnr)] = rtl
+   else
+      msg.error(name, "Buffer is already bidi'd.")
    end
 end
 
@@ -60,6 +62,8 @@ function M.buf_disable_bidi()
       lines = M.fribidi(lines, M.active_bufs[tostring(bufnr)])
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       M.active_bufs[tostring(bufnr)] = nil
+   else
+      msg.error(name, "Buffer is already unbidi'd.")
    end
 end
 
@@ -84,7 +88,9 @@ function M.init()
       vim.api.nvim_create_autocmd({ "BufWritePre", "BufWritePost" }, {
          callback = function(args)
             if M.active_bufs[tostring(args.buf)] ~= nil then
-               M.buf_run_fribidi(M.active_bufs[tostring(args.buf)], true)
+               local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+               lines = M.fribidi(lines, M.active_bufs[tostring(args.buf)])
+               vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
             end
          end,
          group = require("rosetta").augroup,
@@ -105,13 +111,6 @@ function M.init()
       group = require("rosetta").augroup,
    })
 
-   -- Default
-   vim.api.nvim_create_user_command(
-      "BidiConvert",
-      function() M.buf_run_fribidi(default_rtl, true) end,
-      {}
-   )
-
    vim.api.nvim_create_user_command(
       "BidiEnable",
       function() M.buf_enable_bidi(default_rtl) end,
@@ -120,29 +119,15 @@ function M.init()
 
    vim.api.nvim_create_user_command("BidiDisable", M.buf_disable_bidi, {})
 
-   -- Manual (LTR)
-   vim.api.nvim_create_user_command(
-      "BidiConvertLTR",
-      function() M.buf_run_fribidi("ltr", true) end,
-      {}
-   )
-
    vim.api.nvim_create_user_command(
       "BidiEnableLTR",
-      function() M.buf_enable_bidi("ltr") end,
-      {}
-   )
-
-   -- Manual (RTL)
-   vim.api.nvim_create_user_command(
-      "BidiConvertRTL",
-      function() M.buf_run_fribidi("rtl", true) end,
+      function() M.buf_enable_bidi(false) end,
       {}
    )
 
    vim.api.nvim_create_user_command(
-      "BidiEnablRTL",
-      function() M.buf_enable_bidi("rtl") end,
+      "BidiEnableRTL",
+      function() M.buf_enable_bidi(true) end,
       {}
    )
 end
