@@ -87,6 +87,7 @@ end
 --- Initialize keyboard capabilities
 function M.init()
    M.config = require("rosetta").config
+   M.augroup = require("rosetta").augroup
 
    -- Set options and default keyboard
    vim.o.allowrevins = true
