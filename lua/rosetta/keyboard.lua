@@ -8,9 +8,18 @@ local name = "Keyboard"
 local msg = require("rosetta.message")
 
 -- Reset to original settings
+-- @string lang The current language before reset.
 local function reset()
    vim.bo.keymap = M.config.lang[M.config.options.default].keymap
    vim.o.revins = M.config.lang[M.config.options.default].rtl
+
+   -- This is messy at the moment.
+   -- I'd rather find a more elegant way, i.e., deleting the keymaps.
+   -- But to do that, I need to check whether they exist at all.
+   if M.config.keyboard.intuitive_delete then
+      vim.keymap.set("i", "<BS>", "<BS>", { buffer = true })
+      vim.keymap.set("i", "<Del>", "<Del>", { buffer = true })
+   end
 end
 
 --- View keys for current mapping
@@ -37,17 +46,6 @@ function M.view_keymap()
    vim.o.rightleft = M.config.lang[M.config.options.default].rtl
 end
 
---- Reset keyboard to default language
--- @bool silent When true, Rosetta does not inform the user of the switch.
-function M.reset_keyboard(silent)
-   if vim.wo.rightleft and M.config.keyboard.intuitive_delete then
-      vim.keymap.del("i", "<BS>", { buffer = true })
-      vim.keymap.del("i", "<Del>", { buffer = true })
-   end
-   reset()
-   if not silent then msg.info(name, "Reset keyboard") end
-end
-
 --- Set keyboard to desired language
 -- @string lang The name of the language.
 -- @bool silent When true, Rosetta does not inform the user of the switch.
@@ -59,7 +57,7 @@ function M.set_keyboard(lang, silent)
          string.format("Could not find '%s' in configured languages.", lang)
       )
    else
-      reset()
+      reset(lang)
 
       -- Get language settings
       local lang_conf = M.config.lang[lang]
@@ -126,7 +124,7 @@ function M.init()
 
       vim.api.nvim_create_autocmd("InsertLeave", {
          callback = function(args)
-            if vim.bo.keymap ~= nil then M.reset_keyboard(true) end
+            if vim.bo.keymap ~= nil then reset() end
          end,
          group = M.augroup,
       })
