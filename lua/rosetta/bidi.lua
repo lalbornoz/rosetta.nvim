@@ -71,6 +71,26 @@ function M.buf_run_fribidi(dir, silent)
    if not silent then msg.info(name, "Ran fribidi on buffer.") end
 end
 
+--- Convert/revert the current line to bidi
+-- Automatically takes buffer's current base direction,
+-- or if buffer is not active, the default base direction.
+function M.line_run_fribidi()
+   local linenr = vim.api.nvim_win_get_cursor(0)[1]
+   local line = vim.api.nvim_buf_get_lines(0, linenr - 1, linenr, false)[1]
+
+   local dir = ""
+   if M.active_bufs[tostring(buf_handle)] ~= nil then
+      dir = M.active_bufs[tostring(buf_handle)]
+   else
+      dir = M.config.lang[M.config.options.default].rtl and "rtl" or "ltr"
+   end
+
+   line = M.fribidi(line, "--" .. dir)
+   vim.api.nvim_buf_set_lines(0, linenr - 1, linenr, false, line)
+
+   msg.info(name, string.format("Converted line %s.", linenr))
+end
+
 --- Initialize bidi capabilities
 function M.init()
    M.config = require("rosetta").config
@@ -95,6 +115,12 @@ function M.init()
       -- Find default bidi direction
       local default_dir = M.config.lang[M.config.options.default].rtl and "rtl"
          or "ltr"
+
+      vim.api.nvim_create_user_command(
+         "BidiLineConvert",
+         M.line_run_fribidi,
+         {}
+      )
 
       -- Default
       vim.api.nvim_create_user_command(
