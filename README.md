@@ -61,6 +61,7 @@ require("rosetta").setup({
    bidi = {
       enabled = true,
       user_commands = true, -- Generate usercommands for bidi functions
+      register = "b", -- Register which will paste bidi content.
       revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
    },
    keyboard = {
@@ -110,15 +111,12 @@ By default, Rosetta creates usercommands for easy switching.
 |---------------------|-----------------------------------------------------------------------------------|
 | `:BidiDisable`      | Do not display bidi text in current buffer using default base direction.          |
 | `:BidiEnable`       | Display bidi text in current buffer using default base direction.                 |
-| `:BidiConvert`      | Convert buffer contents to/from bidi using default base direction.                |
-| `:BidiDisable<DIR>` | Do not display bidi text in current buffer using `<DIR>` base direction.            | 
-| `:BidiEnable<DIR>`  | Display bidi text in current buffer using `<DIR>` base direction.                   |  
-| `:BidiConvert<DIR>` | Convert buffer contents to/from bidi using `<DIR>` base direction.                  |
+| `:BidiDisable<DIR>` | Do not display bidi text in current buffer using `<DIR>` base direction.          | 
+| `:BidiEnable<DIR>`  | Display bidi text in current buffer using `<DIR>` base direction.                 |
 
-Use `:BidiConvert` before saving to write buffer contents as bidi text.
-
-If you load an already bidi'd buffer and run `:BidiEnable`, the display will be incorrect unfortunately.
-Just run `:BidiConvert` again to solve this issue.
+Rosetta also utilizes a specific register (`b` by default) which will also paste bidi contents.
+To some selected text, use `"bd` and `"bp`.
+To convert the entire buffer, use `ggVG"bd` followed by `"bp`.
 
 ## Keyboard
 
