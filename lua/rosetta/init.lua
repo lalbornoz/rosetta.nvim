@@ -11,11 +11,12 @@ local msg = require("rosetta.message")
 --- The default configuration
 M.config = {
    options = {
-      default = "english", -- Default language
+      default = "english", -- Default language.
    },
    bidi = {
       enabled = true,
-      user_commands = true, -- Generate usercommands for bidi functions
+      user_commands = true, -- Generate usercommands for bidi functions.
+      register = "b", -- Register which will paste bidi content.
       revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
    },
    keyboard = {

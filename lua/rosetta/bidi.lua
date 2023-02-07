@@ -101,12 +101,12 @@ function M.init()
    vim.api.nvim_create_autocmd("TextYankPost", {
       pattern = "*",
       callback = function(args)
-         local content = vim.fn.getreg("b")
+         local content = vim.fn.getreg(M.config.bidi.register)
 
          local rtl = M.active_bufs[tostring(bufnr)] or default_rtl
 
          content = M.fribidi(content) -- Needs to call separately for some reason
-         vim.fn.setreg("b", content)
+         vim.fn.setreg(M.config.bidi.register, content)
       end,
       group = require("rosetta").augroup,
    })
