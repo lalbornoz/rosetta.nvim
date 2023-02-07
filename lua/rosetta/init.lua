@@ -41,6 +41,8 @@ M.config = {
 function M.setup(opts)
    M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
+   M.augroup = vim.api.nvim_create_augroup("BidiGrp", { clear = true })
+
    if M.config.bidi.enabled then bidi.init() end
    if M.config.keyboard.enabled then kbd.init() end
 end
