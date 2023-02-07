@@ -82,7 +82,7 @@ function M.init()
       vim.api.nvim_create_autocmd({ "BufWritePre", "BufWritePost" }, {
          callback = function(args)
             if M.active_bufs[tostring(args.buf)] ~= nil then
-               M.buf_run_fribidi(true)
+               M.buf_run_fribidi(M.active_bufs[tostring(args.buf)], true)
             end
          end,
          group = M.augroup,
