@@ -67,16 +67,6 @@ function M.buf_disable_bidi()
    end
 end
 
---- Convert current buffer contents to bidi
--- This will toggle the text between bidi and udi as a static file.
--- @bool rtl When true, the base direction is RTL.
--- @bool silent boolean When true, Rosetta does not output a message.
-function M.buf_run_fribidi(rtl, silent)
-   local bufnr = vim.api.nvim_win_get_buf(0)
-   vim.api.nvim_buf_set_lines(0, 0, -1, false, bidi_buf(bufnr, dir))
-   if not silent then msg.info(name, "Ran fribidi on buffer.") end
-end
-
 --- Initialize bidi capabilities
 function M.init()
    M.config = require("rosetta").config
@@ -101,12 +91,11 @@ function M.init()
    vim.api.nvim_create_autocmd("TextYankPost", {
       pattern = "*",
       callback = function(args)
-         local content = vim.fn.getreg(M.config.bidi.register)
-
-         local rtl = M.active_bufs[tostring(bufnr)] or default_rtl
-
-         content = M.fribidi(content) -- Needs to call separately for some reason
-         vim.fn.setreg(M.config.bidi.register, content)
+         if vim.v.event.regname == M.config.bidi.register then
+            local rtl = M.active_bufs[tostring(bufnr)] or default_rtl
+            local content = M.fribidi(vim.v.event.regcontents, rtl)[1]
+            vim.fn.setreg(M.config.bidi.register, content)
+         end
       end,
       group = require("rosetta").augroup,
    })
