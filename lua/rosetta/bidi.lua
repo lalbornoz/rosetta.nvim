@@ -7,11 +7,35 @@ local M = {}
 local name = "Bidi"
 local kbd = require("rosetta.keyboard")
 local msg = require("rosetta.message")
+local util = require("rosetta.util")
+local c = require("rosetta.config").options
 
 --- A list of the IDs of buffers with bidi enabled.
 -- Key: ID of the Buffer
 -- Value: Boolean. If true, buffer is RTL.
 M.active_bufs = {}
+
+local active_autocmds = {} -- List of autocommands currently active
+
+--- Activate revins depending on the language
+-- @string lang The language to be used.
+function M.revins(lang)
+   if c.lang[lang].rtl then
+      vim.o.revins = true
+
+      if c.bidi.intuitive_delete then
+         vim.keymap.set("i", "<BS>", "<Del>", { buffer = true })
+         vim.keymap.set("i", "<Del>", "<BS>", { buffer = true })
+      end
+   else
+      vim.o.revins = false
+
+      if c.bidi.intuitive_delete then
+         vim.keymap.set("i", "<BS>", "<BS>", { buffer = true })
+         vim.keymap.set("i", "<Del>", "<Del>", { buffer = true })
+      end
+   end
+end
 
 --- Send content to fribidi CLI
 -- @tparam string|table stdin Content to bidi-tize, either a string or a table of lines
@@ -49,8 +73,24 @@ function M.buf_enable_bidi(rtl)
       lines = M.fribidi(lines, rtl)
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       M.active_bufs[tostring(bufnr)] = rtl
+
+      -- Switch to revins if keyboard language is RTL
+      -- Auto-keyboard switch handles this when its enabled.
+      local autocmd_id = vim.api.nvim_create_autocmd("InsertEnter", {
+         callback = function(args)
+            if not (c.keyboard.enabled and kbd.auto) and M.active_bufs[tostring(bufnr)] ~= nil then
+               local lang = string.match(vim.bo.keymap, "^%w+") or "english"
+               M.revins(lang)
+            end
+            
+         end,
+         group = M.augroup,
+      })
+
+      active_autocmds["insert_auto_switch"] = autocmd_id
+
    else
-      msg.error(name, "Buffer is already bidi'd.")
+      msg.error(name, "Bidi Mode already enabled.")
    end
 end
 
@@ -62,20 +102,28 @@ function M.buf_disable_bidi()
       lines = M.fribidi(lines, M.active_bufs[tostring(bufnr)])
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       M.active_bufs[tostring(bufnr)] = nil
+
+      -- Remove revins autocmd
+      if active_autocmds["insert_auto_switch"] ~= nil then
+         vim.api.nvim_del_autocmd(active_autocmds["insert_auto_switch"])
+         active_autocmds["insert_auto_switch"] = nil
+      end
+
+      -- Configure reverse insert
+      vim.o.revins = false
    else
-      msg.error(name, "Buffer is already unbidi'd.")
+      msg.error(name, "Bidi Mode already disabled.")
    end
 end
 
 --- Initialize bidi capabilities
 function M.init()
-   M.config = require("rosetta").config
    M.augroup = vim.api.nvim_create_augroup("RosettaBidi", { clear = true })
 
-   local default_rtl = M.config.lang[M.config.options.default].rtl
+   local default_rtl = c.lang[c.lang.default].rtl
 
    -- Autocommand for saving
-   if M.config.bidi.revert_before_saving then
+   if c.bidi.revert_before_saving then
       vim.api.nvim_create_autocmd({ "BufWritePre", "BufWritePost" }, {
          callback = function(args)
             if M.active_bufs[tostring(args.buf)] ~= nil then
@@ -92,10 +140,10 @@ function M.init()
    vim.api.nvim_create_autocmd("TextYankPost", {
       pattern = "*",
       callback = function(args)
-         if vim.v.event.regname == M.config.bidi.register then
+         if vim.v.event.regname == c.bidi.register then
             local rtl = M.active_bufs[tostring(bufnr)] or default_rtl
             local content = M.fribidi(vim.v.event.regcontents, rtl)[1]
-            vim.fn.setreg(M.config.bidi.register, content)
+            vim.fn.setreg(c.bidi.register, content)
          end
       end,
       group = M.augroup,
