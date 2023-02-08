@@ -67,7 +67,6 @@ require("rosetta").setup({
    keyboard = {
       enabled = true,
       user_commands = true, -- Generate usercommands for keyboard functions
-      auto_switch_keyboard = true, -- Automatically switch to the language under the cursor.
       intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
       silent = false, -- Notify the user when keyboard is switched.
    },
@@ -128,10 +127,12 @@ vim.keymap.set("n", "<Leader>bp", "\"+p[`v`]\"bdgv\"bp", { noremap = true, silen
 
 ## Keyboard
 
-| Command             | Action                                                                      |
-|---------------------|-----------------------------------------------------------------------------|
-| `:Keyboard<LANG>`   | Activate keyboard for the indicated language.                               |
-| `:KeyboardMappings` | View mappings for current keyboard (if they exist).                         |
+| Command                | Action                                                                      |
+|------------------------|-----------------------------------------------------------------------------|
+| `:Keyboard<LANG>`      | Activate keyboard for the indicated language (and disable auto-switch)      |
+| `:KeyboardAutoEnable`  | Auto-switch keyboard depending the language under the cursor.               |
+| `:KeyboardAutoDisable` | Disable auto-switch.                                                        |
+| `:KeyboardMappings`    | View mappings for current keyboard (if they exist).                         |
 
 ## See a problem?
 
