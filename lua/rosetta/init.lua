@@ -21,8 +21,7 @@ M.config = {
    },
    keyboard = {
       enabled = true,
-      user_commands = true, -- Generate usercommands for keyboard functions
-      auto_switch_keyboard = true, -- Automatically switch to the language under the cursor.
+      user_commands = true, -- Generate usercommands for keyboard functions.
       intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
       silent = false, -- Notify the user when keyboard is switched.
    },
@@ -41,8 +40,6 @@ M.config = {
 -- @see rosetta.config
 function M.setup(opts)
    M.config = vim.tbl_deep_extend("force", M.config, opts or {})
-
-   M.augroup = vim.api.nvim_create_augroup("BidiGrp", { clear = true })
 
    if M.config.bidi.enabled then bidi.init() end
    if M.config.keyboard.enabled then kbd.init() end
