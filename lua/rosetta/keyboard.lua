@@ -4,14 +4,25 @@
 
 local M = {}
 
+-- Auto keyboard
+M.auto = false
+
+-- Save defaults for any settings changed by a keyboard for easy reversion
+local defaults = {}
+local active_autocmds = {} -- List of autocommands currently active
+
 local name = "Keyboard"
 local msg = require("rosetta.message")
 
 -- Reset to original settings
--- @string lang The current language before reset.
 local function reset()
+   -- Revert settings
    vim.bo.keymap = M.config.lang[M.config.options.default].keymap
    vim.o.revins = M.config.lang[M.config.options.default].rtl
+
+   for option, setting in pairs(defaults) do
+      vim.o[option] = setting
+   end
 
    -- This is messy at the moment.
    -- I'd rather find a more elegant way, i.e., deleting the keymaps.
@@ -26,12 +37,7 @@ end
 -- This creates a vsplit with vim's keymap for the current language displayed.
 function M.view_keymap()
    if vim.bo.keymap ~= "" then
-      vim.cmd(
-         string.format(
-            "vsplit $VIMRUNTIME/keymap/%s.vim",
-            M.config.lang[lang].keymap
-         )
-      )
+      vim.cmd(string.format("vsplit $VIMRUNTIME/keymap/%s.vim", vim.bo.keymap))
    else
       msg.info(
          name,
@@ -57,7 +63,7 @@ function M.set_keyboard(lang, silent)
          string.format("Could not find '%s' in configured languages.", lang)
       )
    else
-      reset(lang)
+      reset() -- Reset keyboard
 
       -- Get language settings
       local lang_conf = M.config.lang[lang]
@@ -68,6 +74,7 @@ function M.set_keyboard(lang, silent)
 
       if lang_conf.options ~= nil then
          for option, setting in pairs(lang_conf.options) do
+            defaults[option] = vim.o[option]
             vim.o[option] = setting
          end
       end
@@ -84,18 +91,17 @@ function M.set_keyboard(lang, silent)
    end
 end
 
---- Initialize keyboard capabilities
-function M.init()
-   M.config = require("rosetta").config
-   M.augroup = require("rosetta").augroup
+--- Toggle auto keyboard capabilities
+-- @bool enabled When true, auto-switching is enabled.
+-- @bool silent When true, Rosetta does not inform the user of the switch.
+function M.auto_keyboard(enable, silent)
+   local bufnr = vim.api.nvim_win_get_buf(0)
 
-   -- Set options and default keyboard
-   vim.o.allowrevins = true
-   M.set_keyboard(M.config.options.default, true)
+   M.auto = enable
 
-   -- Autocommands for insert mode.
-   if M.config.keyboard.auto_switch_keyboard then
-      vim.api.nvim_create_autocmd("InsertEnter", {
+   if enable then
+      -- Switch source when entering insert mode
+      local autocmd_id = vim.api.nvim_create_autocmd("InsertEnter", {
          callback = function(args)
             -- Get current word under cursor
             local sample = vim.fn.expand("<cword>")
@@ -123,26 +129,56 @@ function M.init()
          group = M.augroup,
       })
 
-      vim.api.nvim_create_autocmd("InsertLeave", {
-         callback = function(args)
-            if vim.bo.keymap ~= nil then reset() end
-         end,
-         group = M.augroup,
-      })
+      active_autocmds["insert_auto_switch"] = autocmd_id
+   else
+      -- Remove autocmd for switching
+      if active_autocmds["insert_auto_switch"] ~= nil then
+         vim.api.nvim_del_autocmd(active_autocmds["insert_auto_switch"])
+         active_autocmds["insert_auto_switch"] = nil
+      end
    end
+
+   if not silent then
+      local on_msg = enable and "activated" or "deactivated"
+      msg.info(name, string.format("Auto-switching keyboard is %s.", on_msg))
+   end
+end
+
+--- Initialize keyboard capabilities
+function M.init()
+   M.config = require("rosetta").config
+   M.augroup = vim.api.nvim_create_augroup("RosettaKeyboard", { clear = true })
+
+   -- Set options and default keyboard
+   vim.o.allowrevins = true
+   M.set_keyboard(M.config.options.default, true)
 
    -- Create user commands
    if M.config.keyboard.user_commands then
+      -- Keyboard switch commands
       for lang, _ in pairs(M.config.lang) do
          local cmd_name =
             string.format("Keyboard%s%s", lang:sub(1, 1):upper(), lang:sub(2))
-         vim.api.nvim_create_user_command(
-            cmd_name,
-            function() M.set_keyboard(lang, M.config.keyboard.silent) end,
-            {}
-         )
+         vim.api.nvim_create_user_command(cmd_name, function()
+            M.auto_keyboard(false, true) -- Disable auto-keyboard when user switches
+            M.set_keyboard(lang, M.config.keyboard.silent)
+         end, {})
       end
 
+      -- Auto keyboard
+      vim.api.nvim_create_user_command(
+         "KeyboardAutoEnable",
+         function() M.auto_keyboard(true, false) end,
+         {}
+      )
+
+      vim.api.nvim_create_user_command(
+         "KeyboardAutoDisable",
+         function() M.auto_keyboard(false, false) end,
+         {}
+      )
+
+      -- View mappings
       vim.api.nvim_create_user_command(
          "KeyboardMappings",
          function() M.view_keymap() end,
