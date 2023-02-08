@@ -70,6 +70,7 @@ end
 --- Initialize bidi capabilities
 function M.init()
    M.config = require("rosetta").config
+   M.augroup = vim.api.nvim_create_augroup("RosettaBidi", { clear = true })
 
    local default_rtl = M.config.lang[M.config.options.default].rtl
 
@@ -83,7 +84,7 @@ function M.init()
                vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
             end
          end,
-         group = require("rosetta").augroup,
+         group = M.augroup,
       })
    end
 
@@ -97,7 +98,7 @@ function M.init()
             vim.fn.setreg(M.config.bidi.register, content)
          end
       end,
-      group = require("rosetta").augroup,
+      group = M.augroup,
    })
 
    vim.api.nvim_create_user_command(
