@@ -114,9 +114,17 @@ By default, Rosetta creates usercommands for easy switching.
 | `:BidiDisable<DIR>` | Do not display bidi text in current buffer using `<DIR>` base direction.          | 
 | `:BidiEnable<DIR>`  | Display bidi text in current buffer using `<DIR>` base direction.                 |
 
-Rosetta also utilizes a specific register (`b` by default) which will also paste bidi contents.
-To some selected text, use `"bd` and `"bp`.
-To convert the entire buffer, use `ggVG"bd` followed by `"bp`.
+Rosetta also utilizes a specific register (`b` by default) which will also paste bidi contents yanked into `b`.
+To convert some selected text, use `"bd`, `gv`, and `"bp`.
+To convert the entire buffer, use `ggVG"bd` followed by `gv` and `"bp`.
+I recommend creating a simple keymap for this process:
+
+```lua
+-- Bidi selection
+vim.keymap.set("v", "<Leader>bc", "\"bdgv\"bp", { noremap = true, silent = true })
+-- Bidi contents when pasting from system keyboard
+vim.keymap.set("n", "<Leader>bp", "\"+p[`v`]\"bdgv\"bp", { noremap = true, silent = true })
+```
 
 ## Keyboard
 
