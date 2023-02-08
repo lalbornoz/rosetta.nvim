@@ -121,7 +121,7 @@ I recommend creating a simple keymap for this process:
 
 ```lua
 -- Bidi selection
-vim.keymap.set("v", "<Leader>bc", "\"bdgv\"bp", { noremap = true, silent = true })
+vim.keymap.set("v", "<Leader>bc", "\"bygv\"bp", { noremap = true, silent = true })
 -- Bidi contents when pasting from system keyboard
 vim.keymap.set("n", "<Leader>bp", "\"+p[`v`]\"bdgv\"bp", { noremap = true, silent = true })
 ```
