@@ -13,17 +13,15 @@ function M.detect_lang(word)
          local unicode_regex = ""
          for _, range in ipairs(uni) do
             unicode_regex = unicode_regex
-            .. string.format(
-            "[\\u%s-\\u%s]",
-            range:sub(1, 4),
-            range:sub(6, -1)
-         )
-         .. "\\|"
+               .. string.format(
+                  "[\\u%s-\\u%s]",
+                  range:sub(1, 4),
+                  range:sub(6, -1)
+               )
+               .. "\\|"
          end
          unicode_regex = vim.regex(unicode_regex:sub(1, -3))
-         if unicode_regex:match_str(word) ~= nil then
-            return lang
-         end
+         if unicode_regex:match_str(word) ~= nil then return lang end
       end
    end
 

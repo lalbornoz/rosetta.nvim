@@ -150,7 +150,7 @@ function M.init()
 
       -- View mappings
       vim.api.nvim_create_user_command(
-         "KeyboardMappings",
+         "KeyboardView",
          function() M.view_keymap() end,
          {}
       )

@@ -15,13 +15,13 @@ local defaults = {
       silent = false, -- Notify the user when keyboard is switched.
    },
    lang = { -- Place language instances here.
-   default = "english", -- Default language specified.
-   english = {
-      keymap = "",
-      rtl = false,
-      unicode_range = { "0020-007F" },
+      default = "english", -- Default language specified.
+      english = {
+         keymap = "",
+         rtl = false,
+         unicode_range = { "0020-007F" },
+      },
    },
-},
 }
 
 function M.configure(opts)

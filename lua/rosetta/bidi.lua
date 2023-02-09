@@ -78,17 +78,18 @@ function M.buf_enable_bidi(rtl)
       -- Auto-keyboard switch handles this when its enabled.
       local autocmd_id = vim.api.nvim_create_autocmd("InsertEnter", {
          callback = function(args)
-            if not (c.keyboard.enabled and kbd.auto) and M.active_bufs[tostring(bufnr)] ~= nil then
+            if
+               not (c.keyboard.enabled and kbd.auto)
+               and M.active_bufs[tostring(bufnr)] ~= nil
+            then
                local lang = string.match(vim.bo.keymap, "^%w+") or "english"
                M.revins(lang)
             end
-            
          end,
          group = M.augroup,
       })
 
       active_autocmds["insert_auto_switch"] = autocmd_id
-
    else
       msg.error(name, "Bidi Mode already enabled.")
    end
