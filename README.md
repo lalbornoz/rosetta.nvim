@@ -7,7 +7,6 @@ A tool for polyglots and bidirectional writers.
 Rosetta is a tool born like most things—from two parents.
 You can meet them if
 you'd like.
-Ah, here they come.
 This is
 **the-common-usage-of-greek-and-hebrew-in-biblical-studies**,
 and this is
@@ -20,6 +19,8 @@ That pretty much sums it up. I love neovim and use it daily in my research and w
 but the lack of good language management, especially bidirectional text, made it difficult to get stuff done.
 So I did what most (neo)vimmers do.
 Instead of looking for a different tool, I made a plugin.
+
+**NOTE: This is in early development. API may change unexpectedly.**
 
 ## Features
 
@@ -55,29 +56,27 @@ Here the defaults.
 
 ```lua
 require("rosetta").setup({
-   options = {
-      default = "english", -- Default language
-   },
    bidi = {
       enabled = true,
-      user_commands = true, -- Generate usercommands for bidi functions
+      user_commands = true, -- Generate usercommands for bidi functions.
+      intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages in a bidi buffer.
       register = "b", -- Register which will paste bidi content.
       revert_before_saving = true, -- Disable bidi-mode before saving buffer contents.
    },
    keyboard = {
       enabled = true,
-      user_commands = true, -- Generate usercommands for keyboard functions
-      intuitive_delete = true, -- Swap `Delete` and `Backspace` keys in insert mode for RTL languages.
+      user_commands = true, -- Generate usercommands for keyboard functions.
       silent = false, -- Notify the user when keyboard is switched.
    },
-   lang = {  -- Place language instances here.
+   lang = { -- Place language instances here.
+      default = "english", -- Default language specified.
       english = {
          keymap = "",
          rtl = false,
          unicode_range = { "0020-007F" },
       },
-   }
-}
+   },
+})
 ```
 
 Languages can be configured like so:
@@ -132,7 +131,7 @@ vim.keymap.set("n", "<Leader>bp", "\"+p[`v`]\"bdgv\"bp", { noremap = true, silen
 | `:Keyboard<LANG>`      | Activate keyboard for the indicated language (and disable auto-switch)      |
 | `:KeyboardAutoEnable`  | Auto-switch keyboard depending the language under the cursor.               |
 | `:KeyboardAutoDisable` | Disable auto-switch.                                                        |
-| `:KeyboardMappings`    | View mappings for current keyboard (if they exist).                         |
+| `:KeyboardView`    | View mappings for current keyboard (if they exist).                         |
 
 ## See a problem?
 
