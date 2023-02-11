@@ -2,6 +2,9 @@
 
 A tool for polyglots and bidirectional writers.
 
+**NOTE: I don't have the time to develop this plugin.
+This is merely a prototype for others (maybe you?) to extend/change/improve/etc. this idea and help make bidi editing more accessible in (neo)vim!**
+
 ## Introduction
 
 Rosetta is a tool born like most things—from two parents.
